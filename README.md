@@ -23,17 +23,35 @@ Django-based REST API for Turku area street maintenance vehicle data.
 
 ### Creating a virtualenv
 
-Create a Python 3.x virtualenv either using the traditional `virtualenv` tool or using the great `virtualenvwrapper` toolset. Assuming the former, [once installed](https://virtualenvwrapper.readthedocs.io/en/latest/), simply do:
+Using a virtual environment for Python is *highly* recommended.
 
-    mkvirtualenv -p /usr/bin/python3 streetmaintenance
+There are a couple of options for that:
 
-The virtualenv will automatically activate. To activate it in the future, just do:
+- Using Python `venv` module:
 
-    workon streetmaintenance
+  Creating the virtual env:
+     
+      sudo apt-get install python3-venv
+      python3 -m venv <path to new virtual environment>
+
+  Activating the virtual env:
+
+      source <path to new virtual environment>/bin/activate
+ 
+- Using [virtualenv](https://virtualenv.pypa.io/en/stable/) tool and the great [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/):
+
+  Creating the virtual env:
+
+      sudo apt-get install virtualenvwrapper
+      mkvirtualenv -p /usr/bin/python3 streetmaintenance
+
+  Activating the virtual env (not required straight after creation):
+
+      workon streetmaintenance
 
 ### Python requirements
 
-Use `pip-tools` to install and maintain installed dependencies.
+Use [pip-tools](https://github.com/jazzband/pip-tools) to install and maintain installed dependencies.
 
     pip install -U pip  # pip-tools needs pip==6.1 or higher (!)
     pip install pip-tools
@@ -70,14 +88,13 @@ Run migrations
 
 Use `pip-tools` to update the `requirements*.txt` files.
 
-    pip install -U pip  # pip-tools needs pip==6.1 or higher (!)
-    pip install pip-tools
-    
 When you change requirements, set them in `requirements.in` or `requirements-dev.in`. Then run:
 
     pip-compile requirements.in
     pip-compile requirements-dev.in
-    
+
+*NOTE:* Unfortunately there is a [bug](https://github.com/jazzband/pip-tools/issues/445) in `pip-compile` ATM (v1.8.0), so you might need to edit `requirements*.txt` manually to remove `setuptools` dependencies.
+
 ### Running tests
 
 Run all tests
