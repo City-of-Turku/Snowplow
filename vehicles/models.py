@@ -53,4 +53,9 @@ class Location(models.Model):
         unique_together = ('timestamp', 'vehicle')
 
     def __str__(self):
-        return '%s %s %s' % (self.vehicle_id, self.coords, self.timestamp)
+        return '%s %s %s' % (self.coords.y, self.coords.x, self.timestamp)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.vehicle.last_timestamp = self.timestamp
+        self.vehicle.save(update_fields=('last_timestamp',))
