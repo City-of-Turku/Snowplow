@@ -12,3 +12,6 @@ class VehiclesConfig(AppConfig):
 
     def ready(self):
         post_migrate.connect(post_migrate_callback, sender=self)
+
+        from vehicles.importers import register_importers_from_settings
+        register_importers_from_settings()

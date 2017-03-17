@@ -71,6 +71,11 @@ STATIC_URL = '/static/'
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
+CELERY_BROKER_URL = 'redis://'
+
+
+STREET_MAINTENANCE_IMPORTERS = {}
+
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
