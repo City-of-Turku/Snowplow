@@ -112,3 +112,56 @@ Open `htmlcov/index.html` for the coverage report.
     python manage.py runserver
 
 The API will be located at `http://localhost:8000`
+
+## Importing data
+
+### Configuring importers
+
+Vehicle data importers are enabled and configured using `STREET_MAINTENANCE_IMPORTERS` setting.
+
+It is a dictionary where keys are fully qualified names of enabled importers' classes, and values for those are dictionaries containing settings for that importer.
+
+Example config for KuntoTurku importer (the only available importer ATM):
+
+```
+STREET_MAINTENANCE_IMPORTERS = {
+    'vehicles.importers.kuntoturku.KuntoTurkuImporter': {
+        'RUN_INTERVAL': 5.0,  # in seconds, defaults to 5.0 if not given
+        'URL': <KuntoTurku URL>,  # required
+    }
+}
+```
+
+### Running importers
+
+[Celery](http://www.celeryproject.org/) is used to run the vehicle data importers. It is installed along other python packages, but it requires an external broker application. We are using [Redis](https://redis.io/) for that, which can be most easily installed by 
+
+```
+sudo apt-get install redis
+```
+
+That packaged version is somewhat old, but it doesn't really matter in our usage.
+
+In *development*, celery can be started with command
+
+```
+celery -A streetmaintenance worker -l debug -B -c 1
+```
+
+It is important to keep concurrency (`-c`) at `1` to prevent possible race conditions.
+
+### Creating a new importer
+
+In order to create a new importer, following steps are needed:
+
+1) Create a class for the new importer by subclassing `BaseVehicleImporter`.
+
+2) Choose a unique id for the importer. A `DataSource` object will be created automatically to match the importer.
+
+3) Implement at least `run()` method. For setting up stuff `__init__(*args, **kwargs)` can be used, but remember to call the super class as well. Importers are instantiated when the django app config is ready.
+
+4) Enable the new importer by putting it and it's settings in `STREET_MAINTENANCE_IMPORTERS` dict.
+
+Inside the importer, settings for it are available as `self.settings` and its data source object as `self.datasource`. The importer needs to assign the data source for its vehicles.
+
+Check the [KuntoTurku](vehicles/importers/kuntoturku.py) importer for an example implementation.
