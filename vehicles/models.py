@@ -15,14 +15,17 @@ class DataSource(models.Model):
 
 
 class Vehicle(models.Model):
-    last_timestamp = models.DateTimeField(verbose_name=_('last timestamp'), null=True, blank=True)
     data_source = models.ForeignKey(DataSource, related_name='vehicles', on_delete=models.PROTECT)
     origin_id = models.CharField(max_length=32, verbose_name=_('origin ID'), db_index=True)
+    last_location = models.ForeignKey(
+        'Location', verbose_name=_('last_location'), related_name='last_location_vehicle', null=True, blank=True
+    )
 
     class Meta:
         verbose_name = _('vehicle')
         verbose_name_plural = _('vehicles')
         unique_together = ('data_source', 'origin_id')
+        ordering = ('-last_location__timestamp',)
 
     def __str__(self):
         return str(self.id)
@@ -42,7 +45,7 @@ class EventType(models.Model):
 
 
 class Location(models.Model):
-    timestamp = models.DateTimeField(verbose_name=_('timestamp'))
+    timestamp = models.DateTimeField(verbose_name=_('timestamp'), db_index=True)
     coords = models.PointField(verbose_name=_('coordinates'), srid=4326)
     vehicle = models.ForeignKey(Vehicle, verbose_name=_('vehicle'), related_name='locations', on_delete=models.PROTECT)
     events = models.ManyToManyField(EventType, verbose_name=_('events'), related_name='locations', blank=True)
@@ -51,11 +54,12 @@ class Location(models.Model):
         verbose_name = _('location')
         verbose_name_plural = _('locations')
         unique_together = ('timestamp', 'vehicle')
+        ordering = ('id',)
 
     def __str__(self):
         return '%s %s %s' % (self.coords.y, self.coords.x, self.timestamp)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        self.vehicle.last_timestamp = self.timestamp
-        self.vehicle.save(update_fields=('last_timestamp',))
+        self.vehicle.last_location = self
+        self.vehicle.save(update_fields=('last_location',))
