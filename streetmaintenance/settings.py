@@ -15,6 +15,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'rest_framework',
 
     'vehicles.apps.VehiclesConfig',
 ]
@@ -67,11 +68,17 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+APPEND_SLASH = False
+
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
 CELERY_BROKER_URL = 'redis://'
+
+REST_FRAMEWORK = {
+    'DATETIME_FORMAT': None,
+}
 
 
 STREET_MAINTENANCE_DEFAULT_LIMIT = 10
