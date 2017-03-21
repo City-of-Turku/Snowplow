@@ -106,6 +106,7 @@ def test_kunto_turku_importer_url_required():
         KuntoTurkuImporter({'foo': 'bar'})
 
 
+@override_settings(STREET_MAINTENANCE_DELAY=None)
 def test_kunto_turku_importer_basic_import():
     importer = KuntoTurkuImporter({'URL': 'https://api.dummy.com/v1/'})
 
@@ -127,6 +128,7 @@ def test_kunto_turku_importer_basic_import():
     assert {event.identifier for event in location.events.all()} == {'au'}
 
 
+@override_settings(STREET_MAINTENANCE_DELAY=None)
 def test_kuntoturku_importer_two_imports():
     importer = KuntoTurkuImporter({'URL': 'https://api.dummy.com/v1/'})
 

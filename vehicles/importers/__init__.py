@@ -3,6 +3,8 @@ from importlib import import_module
 
 from django.conf import settings
 
+from vehicles.constants import IMPORTERS_SETTING
+
 logger = logging.getLogger(__name__)
 
 _importers = {}
@@ -27,7 +29,7 @@ def register_importers_from_settings():
     """
     Import, instantiate and register importers based on importer settings.
     """
-    importer_data = getattr(settings, 'STREET_MAINTENANCE_IMPORTERS', {})
+    importer_data = getattr(settings, IMPORTERS_SETTING, {})
 
     for full_class_name, importer_datum in importer_data.items():
         module_name, class_name = full_class_name.rsplit('.', 1)
