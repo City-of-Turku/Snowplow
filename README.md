@@ -171,3 +171,5 @@ Check the [KuntoTurku](vehicles/importers/kuntoturku.py) importer for an example
 The API closely matches [Helsinki City Aura API](https://github.com/City-of-Helsinki/aura/wiki/API) with two minor differences:
   * `ID`s are `int`s instead of `string`s
   * timestamps contain the letter `T` and a time zone, example: `2017-03-22T14:14:25+02:00`
+
+A [Swagger](https://swagger.io/) specification of the API is [here](swagger.yaml).
