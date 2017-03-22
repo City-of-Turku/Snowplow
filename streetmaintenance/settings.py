@@ -62,6 +62,14 @@ DATABASES = {
     }
 }
 
+if 'TRAVIS' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': 'streetmaintenance',
+        }
+    }
+
 LANGUAGE_CODE = 'en'
 TIME_ZONE = 'Europe/Helsinki'
 USE_I18N = True
