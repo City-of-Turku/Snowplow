@@ -3,7 +3,6 @@ from unittest.mock import Mock
 
 import pytest
 from django.conf import ImproperlyConfigured
-from django.test import override_settings
 from django.utils import timezone
 
 from vehicles.importers import (
@@ -13,11 +12,6 @@ from vehicles.importers.base import BaseVehicleImporter
 from vehicles.importers.kuntoturku import KuntoTurkuImporter
 from vehicles.models import DataSource, Vehicle
 
-TEST_IMPORTERS = {
-    '%s.DummyImporter' % __name__: {
-        'URL': 'https://api.dummy.com/v1/',
-    },
-}
 
 FETCHED_DATA_1 = [
     {
@@ -72,6 +66,16 @@ class DummyImporter(BaseVehicleImporter):
         pass
 
 
+@pytest.fixture(autouse=True)
+def default_settings(settings):
+    settings.STREET_MAINTENANCE_DELAY = 15 * 60
+    settings.STREET_MAINTENANCE_IMPORTERS = {
+        '%s.DummyImporter' % __name__: {
+            'URL': 'https://api.dummy.com/v1/',
+        },
+}
+
+
 def test_importer_creation():
     dummy_importer = DummyImporter({'dummy_setting': 'dummy_value'})
     assert dummy_importer.settings['dummy_setting'] == 'dummy_value'
@@ -89,7 +93,6 @@ def test_importer_registering():
     assert get_importer_by_id('damdidam') is None
 
 
-@override_settings(STREET_MAINTENANCE_IMPORTERS=TEST_IMPORTERS)
 def test_automatic_registering():
     from vehicles import importers
     importers._importers = {}
@@ -106,7 +109,6 @@ def test_kunto_turku_importer_url_required():
         KuntoTurkuImporter({'foo': 'bar'})
 
 
-@override_settings(STREET_MAINTENANCE_DELAY=None)
 def test_kunto_turku_importer_basic_import():
     importer = KuntoTurkuImporter({'URL': 'https://api.dummy.com/v1/'})
 
@@ -128,7 +130,6 @@ def test_kunto_turku_importer_basic_import():
     assert {event.identifier for event in location.events.all()} == {'au'}
 
 
-@override_settings(STREET_MAINTENANCE_DELAY=None)
 def test_kuntoturku_importer_two_imports():
     importer = KuntoTurkuImporter({'URL': 'https://api.dummy.com/v1/'})
 
