@@ -1,12 +1,11 @@
 from datetime import datetime, timedelta
 
 import pytest
-
 from django.utils import timezone
 
-from vehicles.models import EventType, Location
 from vehicles.factories import LocationFactory, VehicleFactory
-from vehicles.tests.utils import get_list, get_detail, get_location_data_from_obj, TWO_YEARS_IN_SECONDS
+from vehicles.models import EventType, Location
+from vehicles.tests.utils import get_detail, get_list, get_location_data_from_obj, TWO_YEARS_IN_SECONDS
 
 
 @pytest.fixture(autouse=True)

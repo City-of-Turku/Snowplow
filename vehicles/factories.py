@@ -1,11 +1,9 @@
-import pytz
-
-from django.contrib.gis.geos import Point
-
 import factory
+import pytz
+from django.contrib.gis.geos import Point
 from faker import Faker
 
-from .models import DataSource, EventType, Location, Vehicle
+from .models import DataSource, Location, Vehicle
 
 fake = Faker()
 

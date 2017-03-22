@@ -2,9 +2,7 @@ import json
 
 from django.core.urlresolvers import reverse
 from django.utils import timezone
-
 from rest_framework.test import APIClient
-
 
 VEHICLE_LIST_URL = reverse('v1:vehicle-list')
 

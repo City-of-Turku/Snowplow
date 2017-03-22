@@ -37,7 +37,7 @@ def test_last_locations_with_delay(settings):
     assert vehicle.location_is_latest is False
 
     # should not affect anything
-    location_3 = LocationFactory.create(vehicle=vehicle, year=1999)
+    LocationFactory.create(vehicle=vehicle, year=1999)
     vehicle.update_last_location()
 
     assert vehicle.last_location == location_1
@@ -57,5 +57,3 @@ def test_last_locations_with_delay(settings):
 
     assert vehicle.last_location == location_2
     assert vehicle.location_is_latest is True
-
-

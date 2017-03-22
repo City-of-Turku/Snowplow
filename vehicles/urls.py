@@ -10,6 +10,7 @@ class SlashlessRouter(DefaultRouter):
         super().__init__(*args, **kwargs)
         self.trailing_slash = '/?'
 
+
 router = SlashlessRouter()
 router.register('vehicles', VehicleViewSet)
 

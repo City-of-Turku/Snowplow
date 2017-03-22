@@ -5,13 +5,10 @@ import pytest
 from django.conf import ImproperlyConfigured
 from django.utils import timezone
 
-from vehicles.importers import (
-    get_importer_by_id, register_importer, register_importers_from_settings
-)
+from vehicles.importers import get_importer_by_id, register_importer, register_importers_from_settings
 from vehicles.importers.base import BaseVehicleImporter
 from vehicles.importers.kuntoturku import KuntoTurkuImporter
 from vehicles.models import DataSource, Vehicle
-
 
 FETCHED_DATA_1 = [
     {
@@ -72,8 +69,8 @@ def default_settings(settings):
     settings.STREET_MAINTENANCE_IMPORTERS = {
         '%s.DummyImporter' % __name__: {
             'URL': 'https://api.dummy.com/v1/',
-        },
-}
+        }
+    }
 
 
 def test_importer_creation():
