@@ -121,9 +121,6 @@ class KuntoTurkuImporter(BaseVehicleImporter):
             logger.info('No locations')
 
     def run(self):
-        for vehicle in Vehicle.objects.filter(location_is_latest=False):
-            vehicle.update_last_location()
-
         vehicle_data = self.fetch_data()
 
         with transaction.atomic():

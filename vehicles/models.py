@@ -45,7 +45,7 @@ class Vehicle(models.Model):
         if hasattr(settings, DELAY_SETTING):
             delay = getattr(settings, DELAY_SETTING) or 0
         else:
-            delay = 15 * 60
+            delay = 15 * 60  # default 15 mins
 
         delay_timestamp = now() - timedelta(seconds=delay)
         self.last_location = self.locations.filter(timestamp__lte=delay_timestamp).order_by('timestamp').last()
@@ -59,6 +59,17 @@ class Vehicle(models.Model):
         if self.last_location:
             locations = locations.filter(timestamp__lte=self.last_location.timestamp)
         return locations
+
+    @classmethod
+    def update_last_locations(cls, force=False):
+        """
+        Update (if needed) delayed last location of all vehicles that aren't up to date.
+
+        If location delay is enabled this needs to be called periodically to
+        get locations actually updated in the API.
+        """
+        for vehicle in cls.objects.filter(location_is_latest=False):
+            vehicle.update_last_location(force)
 
 
 class EventType(models.Model):

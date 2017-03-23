@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 def run_importer(importer_id):
     importer = get_importer_by_id(importer_id)
     logger.info('Running importer %s' % importer_id)
-    importer.run()
+    importer.base_run()
     logger.info('Import completed successfully')
 
 
