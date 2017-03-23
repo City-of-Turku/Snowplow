@@ -14,7 +14,7 @@ Django-based REST API for Turku area street maintenance vehicle data.
 #### PostgreSQL
 
     # Ubuntu 16.04
-    sudo apt-get install python3-dev libpq-dev postgresql postgis
+    sudo apt-get install build-essential python3-dev libpq-dev postgresql postgis
     
 #### GeoDjango extra packages
 
@@ -111,7 +111,7 @@ Open `htmlcov/index.html` for the coverage report.
 
     python manage.py runserver
 
-The API will be located at `http://localhost:8000`
+The API will be located at `http://localhost:8000/v1/`
 
 ## Importing data
 
@@ -165,3 +165,11 @@ In order to create a new importer, following steps are needed:
 Inside the importer, settings for it are available as `self.settings` and its data source object as `self.datasource`. The importer needs to assign the data source for its vehicles.
 
 Check the [KuntoTurku](vehicles/importers/kuntoturku.py) importer for an example implementation.
+
+## API
+
+The API closely matches [Helsinki City Aura API](https://github.com/City-of-Helsinki/aura/wiki/API) with two minor differences:
+  * `ID`s are `int`s instead of `string`s
+  * timestamps contain the letter `T` and a time zone, example: `2017-03-22T14:14:25+02:00`
+
+A [Swagger](https://swagger.io/) specification of the API is [here](swagger.yaml).

@@ -3,21 +3,12 @@ from unittest.mock import Mock
 
 import pytest
 from django.conf import ImproperlyConfigured
-from django.test import override_settings
 from django.utils import timezone
 
-from vehicles.importers import (
-    get_importer_by_id, register_importer, register_importers_from_settings
-)
+from vehicles.importers import get_importer_by_id, register_importer, register_importers_from_settings
 from vehicles.importers.base import BaseVehicleImporter
 from vehicles.importers.kuntoturku import KuntoTurkuImporter
 from vehicles.models import DataSource, Vehicle
-
-TEST_IMPORTERS = {
-    '%s.DummyImporter' % __name__: {
-        'URL': 'https://api.dummy.com/v1/',
-    },
-}
 
 FETCHED_DATA_1 = [
     {
@@ -72,6 +63,16 @@ class DummyImporter(BaseVehicleImporter):
         pass
 
 
+@pytest.fixture(autouse=True)
+def default_settings(settings):
+    settings.STREET_MAINTENANCE_DELAY = 15 * 60
+    settings.STREET_MAINTENANCE_IMPORTERS = {
+        '%s.DummyImporter' % __name__: {
+            'URL': 'https://api.dummy.com/v1/',
+        }
+    }
+
+
 def test_importer_creation():
     dummy_importer = DummyImporter({'dummy_setting': 'dummy_value'})
     assert dummy_importer.settings['dummy_setting'] == 'dummy_value'
@@ -89,7 +90,6 @@ def test_importer_registering():
     assert get_importer_by_id('damdidam') is None
 
 
-@override_settings(STREET_MAINTENANCE_IMPORTERS=TEST_IMPORTERS)
 def test_automatic_registering():
     from vehicles import importers
     importers._importers = {}
@@ -116,10 +116,11 @@ def test_kunto_turku_importer_basic_import():
 
     vehicle = Vehicle.objects.get(origin_id='123')
     assert vehicle.data_source == DataSource.objects.get(id=KuntoTurkuImporter.id)
-    assert vehicle.last_timestamp == timezone.make_aware(datetime(2017, 2, 18, 12, 00, 00))
 
     assert vehicle.locations.count() == 1
     location = vehicle.locations.last()
+
+    assert vehicle.last_location == location
     assert location.timestamp == timezone.make_aware(datetime(2017, 2, 18, 12, 00, 00))
     assert round(location.coords.x) == 20
     assert round(location.coords.y) == 60
@@ -139,13 +140,12 @@ def test_kuntoturku_importer_two_imports():
 
     # check that the first vehicle has not been updated
     first_vehicle = Vehicle.objects.get(origin_id='123')
-    assert first_vehicle.last_timestamp == timezone.make_aware(datetime(2017, 2, 18, 12, 00, 00))
+    assert first_vehicle.last_location.timestamp == timezone.make_aware(datetime(2017, 2, 18, 12, 00, 00))
     assert first_vehicle.locations.count() == 1
 
     # check that the second vehicle has been updated
     second_vehicle = Vehicle.objects.get(origin_id='456')
-    assert second_vehicle.last_timestamp == timezone.make_aware(datetime(2017, 2, 18, 13, 15, 00))
-
+    assert second_vehicle.last_location.timestamp == timezone.make_aware(datetime(2017, 2, 18, 13, 15, 00))
     assert second_vehicle.locations.count() == 2
 
     # should not be affected
@@ -153,6 +153,7 @@ def test_kuntoturku_importer_two_imports():
     assert old_location.timestamp == timezone.make_aware(datetime(2017, 2, 18, 13, 00, 00))
     assert {event.identifier for event in old_location.events.all()} == {'au'}
 
+    # should be the new location
     new_location = second_vehicle.locations.last()
     assert new_location.timestamp == timezone.make_aware(datetime(2017, 2, 18, 13, 15, 00))
     assert {event.identifier for event in new_location.events.all()} == {'pe', 'hi'}

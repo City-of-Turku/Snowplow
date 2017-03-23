@@ -15,6 +15,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'rest_framework',
+    'corsheaders',
 
     'vehicles.apps.VehiclesConfig',
 ]
@@ -22,6 +24,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -67,12 +70,21 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+APPEND_SLASH = False
+
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
 CELERY_BROKER_URL = 'redis://'
 
+REST_FRAMEWORK = {
+    'DATETIME_FORMAT': None,
+}
+
+
+STREET_MAINTENANCE_DEFAULT_LIMIT = 10
+STREET_MAINTENANCE_DELAY = 15 * 60  # in seconds
 
 STREET_MAINTENANCE_IMPORTERS = {}
 
