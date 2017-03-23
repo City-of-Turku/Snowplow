@@ -137,7 +137,7 @@ STREET_MAINTENANCE_IMPORTERS = {
 [Celery](http://www.celeryproject.org/) is used to run the vehicle data importers. It is installed along other python packages, but it requires an external broker application. We are using [Redis](https://redis.io/) for that, which can be most easily installed by 
 
 ```
-sudo apt-get install redis
+sudo apt-get install redis-server
 ```
 
 That packaged version is somewhat old, but it doesn't really matter in our usage.
