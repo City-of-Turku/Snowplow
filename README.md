@@ -1,4 +1,5 @@
 # Street Maintenance API
+[![Build Status](https://travis-ci.org/City-of-Turku/street-maintenance-api.svg?branch=master)](https://travis-ci.org/City-of-Turku/street-maintenance-api)
 
 Django-based REST API for Turku area street maintenance vehicle data.
 
