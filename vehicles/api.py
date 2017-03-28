@@ -119,7 +119,7 @@ class VehicleSerializer(serializers.ModelSerializer):
 
 
 class VehicleViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Vehicle.objects.exclude(last_location__isnull=True).prefetch_related('last_location')
+    queryset = Vehicle.objects.exclude(last_location__isnull=True).select_related('last_location')
     serializer_class = VehicleSerializer
 
     def __init__(self, *args, **kwargs):
