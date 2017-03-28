@@ -181,4 +181,5 @@ A [Swagger](https://swagger.io/) specification of the API is [here](swagger.yaml
 The following settings are available in the settings file:
   * `STREET_MAINTENANCE_DEFAULT_LIMIT`: number of vehicles to return from the list endpoint by default.
   * `STREET_MAINTENANCE_DELAY`: how many seconds locations are delayed before they are available from the API. Setting this to `None` means no delay.
+  * `STREET_MAINTENANCE_IGNORE_LOCATIONS_WITHOUT_EVENTS`: when set to `True` locations without valid events will be ignored.
   * `STREET_MAINTENANCE_IMPORTERS`: see "Configuring importers" above.
