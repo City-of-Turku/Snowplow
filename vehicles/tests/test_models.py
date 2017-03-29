@@ -11,13 +11,11 @@ def test_last_location_without_delay(settings):
     location = LocationFactory.create(vehicle=vehicle, year=2000)
 
     assert vehicle.last_location == location
-    assert vehicle.location_is_latest is True
 
     # should not affect anything
     vehicle.update_last_location()
 
     assert vehicle.last_location == location
-    assert vehicle.location_is_latest is True
 
 
 def test_last_locations_with_delay(settings):
@@ -28,27 +26,23 @@ def test_last_locations_with_delay(settings):
     location_2 = LocationFactory.create(vehicle=vehicle, year=timezone.now().year - 1)
 
     assert vehicle.last_location == location_1
-    assert vehicle.location_is_latest is False
 
     # should not affect anything
     vehicle.update_last_location()
 
     assert vehicle.last_location == location_1
-    assert vehicle.location_is_latest is False
 
     # should not affect anything
     LocationFactory.create(vehicle=vehicle, year=1999)
     vehicle.update_last_location()
 
     assert vehicle.last_location == location_1
-    assert vehicle.location_is_latest is False
 
     # this should be the new last location
     location_4 = LocationFactory.create(vehicle=vehicle, year=timezone.now().year - 3)
     vehicle.update_last_location()
 
     assert vehicle.last_location == location_4
-    assert vehicle.location_is_latest is False
 
     settings.STREET_MAINTENANCE_DELAY = 60
 
@@ -56,4 +50,3 @@ def test_last_locations_with_delay(settings):
     vehicle.update_last_location()
 
     assert vehicle.last_location == location_2
-    assert vehicle.location_is_latest is True

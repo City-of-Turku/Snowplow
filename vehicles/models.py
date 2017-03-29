@@ -27,7 +27,6 @@ class Vehicle(models.Model):
         'Location', verbose_name=_('last_location'), related_name='last_location_vehicle', null=True, blank=True,
         on_delete=models.SET_NULL
     )
-    location_is_latest = models.BooleanField(verbose_name=_('location is latest'), db_index=True, default=True)
 
     class Meta:
         verbose_name = _('vehicle')
@@ -38,10 +37,7 @@ class Vehicle(models.Model):
     def __str__(self):
         return str(self.id)
 
-    def update_last_location(self, force=False):
-        if self.location_is_latest and not force:
-            return
-
+    def update_last_location(self):
         if hasattr(settings, DELAY_SETTING):
             delay = getattr(settings, DELAY_SETTING) or 0
         else:
@@ -49,9 +45,7 @@ class Vehicle(models.Model):
 
         delay_timestamp = now() - timedelta(seconds=delay)
         self.last_location = self.locations.filter(timestamp__lte=delay_timestamp).order_by('timestamp').last()
-        self.location_is_latest = self.last_location == self.locations.last()
-
-        self.save(update_fields=('last_location', 'location_is_latest'))
+        self.save(update_fields=('last_location',))
 
     @property
     def available_locations(self):
@@ -61,15 +55,20 @@ class Vehicle(models.Model):
         return locations
 
     @classmethod
-    def update_last_locations(cls, force=False):
+    def update_last_locations(cls):
         """
         Update (if needed) delayed last location of all vehicles that aren't up to date.
 
         If location delay is enabled this needs to be called periodically to
         get locations actually updated in the API.
         """
-        for vehicle in cls.objects.filter(location_is_latest=False):
-            vehicle.update_last_location(force)
+        vehicles_with_new_locations = cls.objects.annotate(
+            latest_timestamp=models.Max('locations__timestamp')
+        ).exclude(
+            last_location__timestamp=models.F('latest_timestamp')
+        )
+        for vehicle in vehicles_with_new_locations:
+            vehicle.update_last_location()
 
 
 class EventType(models.Model):
@@ -109,12 +108,9 @@ class Location(models.Model):
 
         delay = getattr(settings, DELAY_SETTING, 15 * 60)
         if delay and self.timestamp > (now() - timedelta(seconds=delay)):
-            # the new location cannot be shown yet, update the vehicle flag
-            self.vehicle.location_is_latest = False
-            self.vehicle.save(update_fields=('location_is_latest',))
+            # the new location cannot be shown yet
             return
 
         # the new location can be shown normally
-        self.vehicle.location_is_latest = True
         self.vehicle.last_location = self
-        self.vehicle.save(update_fields=('last_location', 'location_is_latest'))
+        self.vehicle.save(update_fields=('last_location',))
