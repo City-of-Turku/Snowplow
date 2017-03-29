@@ -185,4 +185,6 @@ The following settings are available in the settings file:
 
 ## Architecture
 
-A high-level architectural picture can be found [here.](architecture.png)
+[High-level architecture](architecture.png)
+
+[Model diagram](models.png)
