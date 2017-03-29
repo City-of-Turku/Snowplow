@@ -20,7 +20,11 @@ def vehicle():
 
 @pytest.fixture
 def locations_for_vehicle(vehicle):
-    LocationFactory.create_batch(10, vehicle=vehicle)
+    locations = LocationFactory.create_batch(10, vehicle=vehicle)
+
+    for location in locations:
+        location.events.add(EventType.objects.get(identifier='au'))
+        location.events.add(EventType.objects.get(identifier='hi'))
 
 
 def test_list_and_detail_endpoint(vehicle, locations_for_vehicle):

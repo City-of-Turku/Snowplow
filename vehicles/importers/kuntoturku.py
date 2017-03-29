@@ -2,10 +2,11 @@ import logging
 from datetime import datetime
 
 import requests
-from django.conf import ImproperlyConfigured
+from django.conf import ImproperlyConfigured, settings
 from django.db import transaction
 from django.utils import timezone
 
+from vehicles.constants import IGNORE_LOCATIONS_WITHOUT_EVENTS_SETTING
 from vehicles.models import EventType, Location, Vehicle
 
 from .base import BaseVehicleImporter
@@ -78,6 +79,8 @@ class KuntoTurkuImporter(BaseVehicleImporter):
     def update_models(self, vehicle_data):
         logger.debug('Updating models')
         num_of_new_locations = 0
+        num_of_ignored_locations = 0
+        ignore_locations_without_events = getattr(settings, IGNORE_LOCATIONS_WITHOUT_EVENTS_SETTING, True)
 
         for vehicle_datum in vehicle_data:
             location_datum = vehicle_datum['last_location']
@@ -90,6 +93,10 @@ class KuntoTurkuImporter(BaseVehicleImporter):
                     events.append(event)
                 else:
                     logger.debug('Unknown event %s' % original_event)
+
+            if not events and ignore_locations_without_events:
+                num_of_ignored_locations += 1
+                continue
 
             timestamp = timezone.make_aware(datetime.strptime(location_datum['timestamp'], '%Y-%m-%d %H:%M:%S'))
 
@@ -116,14 +123,15 @@ class KuntoTurkuImporter(BaseVehicleImporter):
         num_of_locations = len(vehicle_data)
 
         if num_of_new_locations:
-            logger.info('Number of locations %d (%d new)' % (num_of_locations, num_of_new_locations))
+            logger.info(
+                'Number of new locations %d (total %s ignored %s)' %
+                (num_of_new_locations, num_of_locations, num_of_ignored_locations)
+            )
         else:
-            logger.info('No locations')
+            ignored_msg = ' (%d ignored)' % num_of_ignored_locations if num_of_ignored_locations else ''
+            logger.info('No locations' + ignored_msg)
 
     def run(self):
-        for vehicle in Vehicle.objects.filter(location_is_latest=False):
-            vehicle.update_last_location()
-
         vehicle_data = self.fetch_data()
 
         with transaction.atomic():
