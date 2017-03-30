@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: Street Maintenance API
   description: Street Maintenance API Documentation
-  version: "0.0.1"
+  version: "1.0.0"
 host: 127.0.0.1:8000
 schemes:
   - https
@@ -96,7 +96,26 @@ definitions:
         items:
           type: number
           format: float
-        $ref: '#/definitions/Location'
+      events:
+        type: array
+        items:
+          $ref: '#/definitions/Event'
   Event:
-    description: "Activity a vehicle was performing at a location. Values: *TODO*"
+    description: |
+      Activity a vehicle was performing at a location. Values:
+
+      "au": Snow removal (auraus)
+
+      "su": De-icing with salt (suolaus)
+
+      "hi": Spreading sand (hiekoitus)
+
+      "hs": Planing (höyläys)
+
+      "pe": Street washing (kadunpesu)
+
+      "hn": Sand removal (hiekannosto)
+
+      "hj": Brushing (harjaus)
+
     type: string
