@@ -2,6 +2,7 @@ import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
 
+import dateutil.parser
 from django.conf import settings
 from django.utils import timezone
 from rest_framework import exceptions, serializers, viewsets
@@ -126,12 +127,27 @@ class VehicleViewSet(viewsets.ReadOnlyModelViewSet):
         super().__init__(*args, **kwargs)
         self.parsed_query_params = {}
 
-    def parse_query_params(self):
+    def parse_query_params(self):  # noqa C901
         query_params = {}
 
         since = self.request.query_params.get('since')
         if since:
-            query_params['since'] = datetime.fromtimestamp(timelib.strtotime(bytes(since, 'utf-8')))
+            try:
+                # first try to parse since with dateutil in case it is a datetime
+                since_datetime = dateutil.parser.parse(since)
+            except ValueError:
+                try:
+                    # normally we get here if since has a relative value, try to parse
+                    # it with timelib
+                    since_datetime = datetime.fromtimestamp(timelib.strtotime(bytes(since, 'utf-8')))
+                except ValueError:
+                    raise exceptions.ValidationError('Invalid value for since parameter.')
+
+            # local timezone is assumed if no timezone is given
+            if not since_datetime.tzinfo:
+                since_datetime = timezone.make_aware(since_datetime)
+
+            query_params['since'] = since_datetime
 
         for int_param in ('history', 'limit', 'temporal_resolution'):
             value = self.request.query_params.get(int_param)
