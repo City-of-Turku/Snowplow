@@ -57,6 +57,11 @@ EVENT_TYPES = (
         'name_fi': 'Pinnoitus',
         'name_en': 'Coating',
     },
+    {
+        'identifier': 'ha',
+        'name_fi': 'Harjasuolaus',
+        'name_en': 'Brushing and de-icing with salt',
+    },
 )
 
 DELAY_SETTING = 'STREET_MAINTENANCE_DELAY'

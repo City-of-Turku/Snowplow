@@ -1,0 +1,51 @@
+{% extends "rest_framework/base.html" %}
+{% load static %}
+
+{% block bootstrap_theme %}
+    <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap.min.css" %}"/>
+
+<style>
+.navbar-brand img {
+    display: inline-block;
+    vertical-align: top;
+    height: 40px;
+    margin-top: -8px;
+    margin-right: 10px;
+}
+.navbar {
+    width: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    min-height: 65px;
+}
+.navbar-brand {
+    float: left;
+    padding: 20.5px 12px;
+    font-size: 20px;
+    line-height: 24px;
+    color: white;
+}
+ul.breadcrumb {
+    margin: 90px 0px 0px;
+    margin-top: 90px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+}
+</style>
+{% endblock %}
+
+{% block branding %}
+  <div class='navbar-brand'>
+      <a href="/street-maintenance/v1/" style="color:white"><img height="40px" src="https://dev.turku.fi/turku.svg">
+      Street Maintenance API <span class="version">1</span></a>
+  </div>
+{% endblock %}
+
+{% block description %}
+{% if breadcrumblist|length == 1 %}
+    {% include "rest_framework/description.html" %}
+{% endif %}
+{{ block.super }}
+{% endblock %}
